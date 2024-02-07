@@ -1,5 +1,8 @@
 package br.com.curso.domain.product;
 
-public class ProductRequestDTO {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record ProductRequestDTO (@NotBlank String nome, @NotNull Integer price){
     
 }
