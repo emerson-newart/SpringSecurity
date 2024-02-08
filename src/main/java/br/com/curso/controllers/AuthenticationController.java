@@ -3,8 +3,10 @@ package br.com.curso.controllers;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.curso.domain.user.AuthenticationDTO;
+import br.com.curso.domain.user.LoginResponseDTO;
 import br.com.curso.domain.user.RegisterDTO;
 import br.com.curso.domain.user.Usuario;
+import br.com.curso.infra.security.TokenService;
 import br.com.curso.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 
@@ -29,22 +31,28 @@ public class AuthenticationController {
     @Autowired
     private UsuarioRepository repository;
 
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data) {
+
         var userNamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = this.authenticationManager.authenticate(userNamePassword);
-        return ResponseEntity.ok().build(); 
+
+        var token = tokenService.generateToken((Usuario) auth.getPrincipal());
+        return ResponseEntity.ok(new LoginResponseDTO(token)); 
     }
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterDTO data) {
         if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.senha());
+        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
         var novoUsuario = new Usuario(data.login(), encryptedPassword, data.role());
 
         this.repository.save(novoUsuario);
-        
+
         return ResponseEntity.ok().build(); 
     }
     
