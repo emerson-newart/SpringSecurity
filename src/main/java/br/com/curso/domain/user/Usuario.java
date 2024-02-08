@@ -34,6 +34,12 @@ public class Usuario implements UserDetails{
     private UsuarioRole role;
 
 
+    public Usuario(String login, String password, UsuarioRole role){
+        this.login = login;
+        this.password = password;
+        this.role = role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
       if(this.role == UsuarioRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER") );
